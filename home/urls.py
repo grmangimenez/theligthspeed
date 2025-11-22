@@ -3,4 +3,5 @@ from home import views
 
 urlpatterns = [
     path("",views.index, name='index'),
+    path('productos/', views.productos_ordenados, name='productos_ordenados'),
 ]

@@ -9,6 +9,17 @@
 <body>
     <h2>{{nombre_sitio}}</h2>
     <p>En Construccion</p>
+    <button onclick="window.location.href='{% url 'productos_ordenados' %}'" style="margin-top:20px;padding:10px 20px;background:#2193b0;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:1em;">Ver productos ordenados</button>
+    <div id="productos-lista" style="margin-top:30px;text-align:left;">
+        {% if productos %}
+            <h3>Productos:</h3>
+            <ul>
+            {% for producto in productos %}
+                <li>{{ producto.nombre }} - Cantidad: {{ producto.cantidad }} - Precio: ${{ producto.precio }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
     
 </body>
 </html>
