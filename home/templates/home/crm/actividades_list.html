@@ -1,0 +1,123 @@
+{% extends 'home/crm/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Actividades</h2>
+        <a href="{% url 'actividad_create' %}" class="btn btn-success">Nueva Actividad</a>
+    </div>
+    
+    <div class="search-filters">
+        <form method="get">
+            <div class="form-group">
+                <label>Tipo</label>
+                <select name="tipo">
+                    <option value="">Todos</option>
+                    {% for tipo_code, tipo_name in tipos %}
+                        <option value="{{ tipo_code }}" {% if tipo == tipo_code %}selected{% endif %}>{{ tipo_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Contacto</label>
+                <select name="contacto">
+                    <option value="">Todos</option>
+                    {% for contacto in contactos %}
+                        <option value="{{ contacto.id }}" {% if contacto_id == contacto.id|stringformat:"s" %}selected{% endif %}>{{ contacto.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Oportunidad</label>
+                <select name="oportunidad">
+                    <option value="">Todas</option>
+                    {% for oportunidad in oportunidades %}
+                        <option value="{{ oportunidad.id }}" {% if oportunidad_id == oportunidad.id|stringformat:"s" %}selected{% endif %}>{{ oportunidad.titulo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Fecha Desde</label>
+                <input type="date" name="fecha_desde" value="{{ fecha_desde }}">
+            </div>
+            
+            <div class="form-group">
+                <label>Fecha Hasta</label>
+                <input type="date" name="fecha_hasta" value="{{ fecha_hasta }}">
+            </div>
+            
+            <div class="form-group">
+                <label>Completadas</label>
+                <select name="completadas">
+                    <option value="">Todas</option>
+                    <option value="si" {% if completadas == 'si' %}selected{% endif %}>Sí</option>
+                    <option value="no" {% if completadas == 'no' %}selected{% endif %}>No</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn">Filtrar</button>
+                <a href="{% url 'actividades_list' %}" class="btn btn-secondary">Limpiar</a>
+            </div>
+        </form>
+    </div>
+    
+    <div>
+        {% for actividad in page_obj %}
+            <div class="card" style="margin-bottom: 1rem; {% if actividad.completada %}opacity: 0.7;{% endif %}">
+                <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem;">
+                            <span class="badge badge-{{ actividad.tipo }}">{{ actividad.get_tipo_display }}</span>
+                            <strong style="font-size: 1.1rem;">{{ actividad.titulo }}</strong>
+                            {% if actividad.completada %}
+                                <span style="color: #10b981; font-weight: bold;">✓ Completada</span>
+                            {% endif %}
+                        </div>
+                        <p style="color: #6b7280; margin: 0.5rem 0;">{{ actividad.descripcion|truncatewords:30 }}</p>
+                        <div style="display: flex; gap: 2rem; margin-top: 0.5rem; color: #9ca3af; font-size: 0.9rem;">
+                            <span><strong>Fecha:</strong> {{ actividad.fecha|date:"d/m/Y H:i" }}</span>
+                            {% if actividad.contacto %}
+                                <span><strong>Contacto:</strong> {{ actividad.contacto.nombre }}</span>
+                            {% endif %}
+                            {% if actividad.oportunidad %}
+                                <span><strong>Oportunidad:</strong> {{ actividad.oportunidad.titulo }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <a href="{% url 'actividad_toggle_completada' actividad.pk %}" class="btn btn-sm {% if actividad.completada %}btn-secondary{% else %}btn-success{% endif %}">
+                            {% if actividad.completada %}Reabrir{% else %}Completar{% endif %}
+                        </a>
+                        <a href="{% url 'actividad_edit' actividad.pk %}" class="btn btn-sm">Editar</a>
+                        <a href="{% url 'actividad_delete' actividad.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="card">
+                <p style="text-align: center; padding: 2rem; color: #6b7280;">No se encontraron actividades</p>
+            </div>
+        {% endfor %}
+    </div>
+    
+    {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if contacto_id %}&contacto={{ contacto_id }}{% endif %}{% if oportunidad_id %}&oportunidad={{ oportunidad_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}{% if completadas %}&completadas={{ completadas }}{% endif %}">&laquo; Anterior</a>
+            {% endif %}
+            
+            <span class="current">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if tipo %}&tipo={{ tipo }}{% endif %}{% if contacto_id %}&contacto={{ contacto_id }}{% endif %}{% if oportunidad_id %}&oportunidad={{ oportunidad_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}{% if completadas %}&completadas={{ completadas }}{% endif %}">Siguiente &raquo;</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+

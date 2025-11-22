@@ -1,0 +1,64 @@
+{% extends 'home/crm/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{% if contacto %}Editar Contacto{% else %}Nuevo Contacto{% endif %}</h2>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="nombre">Nombre *</label>
+            <input type="text" id="nombre" name="nombre" value="{% if contacto %}{{ contacto.nombre }}{% endif %}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="correo">Correo Electrónico *</label>
+            <input type="email" id="correo" name="correo" value="{% if contacto %}{{ contacto.correo }}{% endif %}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="telefono">Teléfono</label>
+            <input type="text" id="telefono" name="telefono" value="{% if contacto %}{{ contacto.telefono }}{% endif %}">
+        </div>
+        
+        <div class="form-group">
+            <label for="empresa">Empresa</label>
+            <select id="empresa" name="empresa">
+                <option value="">Sin empresa</option>
+                {% for empresa in empresas %}
+                    <option value="{{ empresa.id }}" {% if contacto and contacto.empresa.id == empresa.id %}selected{% endif %}>{{ empresa.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Etiquetas</label>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                {% for etiqueta in etiquetas %}
+                    <label style="display: flex; align-items: center; padding: 0.5rem; border: 2px solid #e5e7eb; border-radius: 6px; cursor: pointer;">
+                        <input type="checkbox" name="etiquetas" value="{{ etiqueta.id }}" 
+                               {% if contacto and etiqueta in contacto.etiquetas.all %}checked{% endif %}
+                               style="margin-right: 0.5rem;">
+                        <span class="tag" style="background-color: {{ etiqueta.color }}20; color: {{ etiqueta.color }};">{{ etiqueta.nombre }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="notas">Notas</label>
+            <textarea id="notas" name="notas" rows="4">{% if contacto %}{{ contacto.notas }}{% endif %}</textarea>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">{% if contacto %}Actualizar{% else %}Crear{% endif %}</button>
+            <a href="{% url 'contactos_list' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+

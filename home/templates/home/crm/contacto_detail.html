@@ -1,0 +1,78 @@
+{% extends 'home/crm/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{{ contacto.nombre }}</h2>
+        <div class="actions">
+            <a href="{% url 'contacto_edit' contacto.pk %}" class="btn">Editar</a>
+            <a href="{% url 'contacto_delete' contacto.pk %}" class="btn btn-danger">Eliminar</a>
+        </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <div>
+            <h3 style="margin-bottom: 1rem;">Información de Contacto</h3>
+            <div style="background: #f9fafb; padding: 1.5rem; border-radius: 8px;">
+                <p style="margin-bottom: 1rem;"><strong>Correo:</strong><br>{{ contacto.correo }}</p>
+                <p style="margin-bottom: 1rem;"><strong>Teléfono:</strong><br>{{ contacto.telefono|default:"-" }}</p>
+                <p style="margin-bottom: 1rem;"><strong>Empresa:</strong><br>{{ contacto.empresa.nombre|default:"-" }}</p>
+                <p style="margin-bottom: 1rem;"><strong>Etiquetas:</strong><br>
+                    {% for etiqueta in contacto.etiquetas.all %}
+                        <span class="tag" style="background-color: {{ etiqueta.color }}20; color: {{ etiqueta.color }};">{{ etiqueta.nombre }}</span>
+                    {% empty %}
+                        Sin etiquetas
+                    {% endfor %}
+                </p>
+                {% if contacto.notas %}
+                    <p style="margin-top: 1rem;"><strong>Notas:</strong><br>{{ contacto.notas }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div>
+            <h3 style="margin-bottom: 1rem;">Oportunidades ({{ oportunidades.count }})</h3>
+            <div style="max-height: 400px; overflow-y: auto;">
+                {% for oportunidad in oportunidades %}
+                    <div class="card" style="margin-bottom: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <strong>{{ oportunidad.titulo }}</strong>
+                                <p style="margin: 0.5rem 0; color: #6b7280;">Valor: ${{ oportunidad.valor|floatformat:2 }}</p>
+                                <span class="badge badge-{{ oportunidad.estado }}">{{ oportunidad.get_estado_display }}</span>
+                            </div>
+                            <a href="{% url 'oportunidad_edit' oportunidad.pk %}" class="btn btn-sm">Ver</a>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p style="text-align: center; color: #6b7280; padding: 2rem;">No hay oportunidades asociadas</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 2rem;">
+        <h3 style="margin-bottom: 1rem;">Actividades Recientes</h3>
+        <div>
+            {% for actividad in actividades %}
+                <div class="card" style="margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <strong>{{ actividad.get_tipo_display }}</strong> - {{ actividad.titulo }}
+                            <p style="margin: 0.5rem 0; color: #6b7280;">{{ actividad.descripcion|truncatewords:20 }}</p>
+                            <small style="color: #9ca3af;">{{ actividad.fecha|date:"d/m/Y H:i" }}</small>
+                        </div>
+                        {% if actividad.completada %}
+                            <span style="color: #10b981; font-weight: bold;">✓ Completada</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p style="text-align: center; color: #6b7280; padding: 2rem;">No hay actividades registradas</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+

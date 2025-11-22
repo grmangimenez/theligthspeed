@@ -1,0 +1,72 @@
+{% extends 'home/crm/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Dashboard CRM</h2>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Total Contactos</h3>
+            <p style="font-size: 2.5rem; font-weight: bold;">{{ total_contactos }}</p>
+        </div>
+        
+        <div class="card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Total Oportunidades</h3>
+            <p style="font-size: 2.5rem; font-weight: bold;">{{ total_oportunidades }}</p>
+        </div>
+        
+        <div class="card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Valor Total</h3>
+            <p style="font-size: 2.5rem; font-weight: bold;">${{ valor_total_oportunidades|floatformat:2 }}</p>
+        </div>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">Oportunidades por Estado</h3>
+            <div>
+                {% for item in oportunidades_por_estado %}
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #f9fafb; border-radius: 6px; margin-bottom: 0.5rem;">
+                        <span class="badge badge-{{ item.estado }}">{{ item.estado|title }}</span>
+                        <strong>{{ item.count }}</strong>
+                    </div>
+                {% empty %}
+                    <p>No hay oportunidades registradas</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3 style="margin-bottom: 1rem;">Actividades Recientes</h3>
+            <div>
+                {% for actividad in actividades_recientes %}
+                    <div style="padding: 1rem; border-bottom: 1px solid #f3f4f6;">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <strong>{{ actividad.get_tipo_display }}</strong>
+                                <p style="margin: 0.25rem 0; color: #6b7280;">{{ actividad.titulo }}</p>
+                                <small style="color: #9ca3af;">{{ actividad.fecha|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            {% if actividad.completada %}
+                                <span style="color: #10b981;">✓</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p>No hay actividades recientes</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+        <a href="{% url 'contactos_list' %}" class="btn">Ver Todos los Contactos</a>
+        <a href="{% url 'oportunidades_pipeline' %}" class="btn">Ver Pipeline</a>
+        <a href="{% url 'actividades_list' %}" class="btn">Ver Actividades</a>
+    </div>
+</div>
+{% endblock %}
+
+

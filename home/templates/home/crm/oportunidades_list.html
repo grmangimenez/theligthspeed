@@ -1,0 +1,90 @@
+{% extends 'home/crm/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Oportunidades</h2>
+        <div class="actions">
+            <a href="{% url 'oportunidad_create' %}" class="btn btn-success">Nueva Oportunidad</a>
+            <a href="{% url 'oportunidades_pipeline' %}" class="btn">Vista Pipeline</a>
+        </div>
+    </div>
+    
+    <div class="search-filters">
+        <form method="get">
+            <div class="form-group">
+                <label>Estado</label>
+                <select name="estado">
+                    <option value="">Todos</option>
+                    {% for estado_code, estado_name in estados %}
+                        <option value="{{ estado_code }}" {% if estado == estado_code %}selected{% endif %}>{{ estado_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Contacto</label>
+                <select name="contacto">
+                    <option value="">Todos</option>
+                    {% for contacto in contactos %}
+                        <option value="{{ contacto.id }}" {% if contacto_id == contacto.id|stringformat:"s" %}selected{% endif %}>{{ contacto.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn">Filtrar</button>
+                <a href="{% url 'oportunidades_list' %}" class="btn btn-secondary">Limpiar</a>
+            </div>
+        </form>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Contacto</th>
+                <th>Valor</th>
+                <th>Estado</th>
+                <th>Fecha Estimada Cierre</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for oportunidad in page_obj %}
+                <tr>
+                    <td><strong>{{ oportunidad.titulo }}</strong></td>
+                    <td>{{ oportunidad.contacto.nombre }}</td>
+                    <td>${{ oportunidad.valor|floatformat:2 }}</td>
+                    <td><span class="badge badge-{{ oportunidad.estado }}">{{ oportunidad.get_estado_display }}</span></td>
+                    <td>{{ oportunidad.fecha_estimada_cierre|date:"d/m/Y" }}</td>
+                    <td class="actions">
+                        <a href="{% url 'oportunidad_edit' oportunidad.pk %}" class="btn btn-sm">Editar</a>
+                        <a href="{% url 'oportunidad_delete' oportunidad.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 2rem; color: #6b7280;">No se encontraron oportunidades</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if estado %}&estado={{ estado }}{% endif %}{% if contacto_id %}&contacto={{ contacto_id }}{% endif %}">&laquo; Anterior</a>
+            {% endif %}
+            
+            <span class="current">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if estado %}&estado={{ estado }}{% endif %}{% if contacto_id %}&contacto={{ contacto_id }}{% endif %}">Siguiente &raquo;</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+

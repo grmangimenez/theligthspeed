@@ -1,0 +1,75 @@
+{% extends 'home/crm/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>{% if actividad %}Editar Actividad{% else %}Nueva Actividad{% endif %}</h2>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="tipo">Tipo *</label>
+            <select id="tipo" name="tipo" required>
+                {% for tipo_code, tipo_name in tipos %}
+                    <option value="{{ tipo_code }}" {% if actividad and actividad.tipo == tipo_code %}selected{% endif %}>{{ tipo_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="titulo">Título *</label>
+            <input type="text" id="titulo" name="titulo" value="{% if actividad %}{{ actividad.titulo }}{% endif %}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" name="descripcion" rows="4">{% if actividad %}{{ actividad.descripcion }}{% endif %}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="fecha">Fecha y Hora *</label>
+            <input type="datetime-local" id="fecha" name="fecha" 
+                   value="{% if actividad %}{{ actividad.fecha|date:'Y-m-d\TH:i' }}{% endif %}" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="contacto">Contacto</label>
+            <select id="contacto" name="contacto">
+                <option value="">Sin contacto</option>
+                {% for contacto in contactos %}
+                    <option value="{{ contacto.id }}" {% if actividad and actividad.contacto and actividad.contacto.id == contacto.id %}selected{% endif %}>{{ contacto.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="oportunidad">Oportunidad</label>
+            <select id="oportunidad" name="oportunidad">
+                <option value="">Sin oportunidad</option>
+                {% for oportunidad in oportunidades %}
+                    <option value="{{ oportunidad.id }}" {% if actividad and actividad.oportunidad and actividad.oportunidad.id == oportunidad.id %}selected{% endif %}>{{ oportunidad.titulo }} - {{ oportunidad.contacto.nombre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" name="completada" {% if actividad and actividad.completada %}checked{% endif %}>
+                <span>Marcar como completada</span>
+            </label>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-success">{% if actividad %}Actualizar{% else %}Crear{% endif %}</button>
+            <a href="{% url 'actividades_list' %}" class="btn btn-secondary">Cancelar</a>
+            {% if actividad %}
+                <a href="{% url 'actividad_delete' actividad.pk %}" class="btn btn-danger">Eliminar</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+

@@ -1,0 +1,127 @@
+{% extends 'home/crm/base.html' %}
+
+{% block extra_css %}
+<style>
+    .pipeline {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+    
+    .pipeline-column {
+        background: #f9fafb;
+        border-radius: 10px;
+        padding: 1rem;
+        min-height: 500px;
+    }
+    
+    .pipeline-column-header {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+    
+    .pipeline-card {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        cursor: move;
+        transition: transform 0.2s;
+    }
+    
+    .pipeline-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
+    
+    .pipeline-card h4 {
+        margin-bottom: 0.5rem;
+        color: #1f2937;
+    }
+    
+    .pipeline-card p {
+        margin: 0.25rem 0;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+    
+    .pipeline-card .actions {
+        margin-top: 0.5rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Pipeline de Oportunidades</h2>
+        <a href="{% url 'oportunidad_create' %}" class="btn btn-success">Nueva Oportunidad</a>
+    </div>
+    
+    <div class="pipeline">
+        {% for estado_code, estado_name in estados %}
+            <div class="pipeline-column">
+                <div class="pipeline-column-header badge-{{ estado_code }}">
+                    {{ estado_name }}
+                    {% for key, value in pipeline.items %}
+                        {% if key == estado_code %}
+                            <span style="font-size: 0.85rem; font-weight: normal;">({{ value|length }})</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                
+                {% for key, oportunidades_list in pipeline.items %}
+                    {% if key == estado_code %}
+                        {% for oportunidad in oportunidades_list %}
+                    <div class="pipeline-card">
+                        <h4>{{ oportunidad.titulo }}</h4>
+                        <p><strong>Contacto:</strong> {{ oportunidad.contacto.nombre }}</p>
+                        <p><strong>Valor:</strong> ${{ oportunidad.valor|floatformat:2 }}</p>
+                        <p><strong>Fecha Cierre:</strong> {{ oportunidad.fecha_estimada_cierre|date:"d/m/Y" }}</p>
+                        <div class="actions">
+                            <a href="{% url 'oportunidad_edit' oportunidad.pk %}" class="btn btn-sm">Editar</a>
+                            <form method="post" action="{% url 'oportunidad_update_estado' oportunidad.pk %}" style="display: inline;">
+                                {% csrf_token %}
+                                <select name="estado" onchange="this.form.submit()" style="padding: 0.3rem; border-radius: 4px; border: 1px solid #e5e7eb; font-size: 0.85rem;">
+                                    {% for code, name in estados %}
+                                        <option value="{{ code }}" {% if oportunidad.estado == code %}selected{% endif %}>{{ name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </div>
+                    </div>
+                        {% empty %}
+                            <p style="text-align: center; color: #9ca3af; padding: 2rem;">Sin oportunidades</p>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% load static %}
+<script>
+    // Funcionalidad básica para arrastrar y soltar (puede mejorarse con bibliotecas como SortableJS)
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Pipeline cargado');
+    });
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Template filter personalizado para acceder a diccionarios en templates
+    // Esto debería estar en un archivo de filtros personalizados, pero por simplicidad lo agregamos aquí
+</script>
+{% endblock %}
+

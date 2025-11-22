@@ -1,0 +1,108 @@
+{% extends 'home/crm/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2>Contactos</h2>
+        <a href="{% url 'contacto_create' %}" class="btn btn-success">Nuevo Contacto</a>
+    </div>
+    
+    <div class="search-filters">
+        <form method="get">
+            <div class="form-group">
+                <label>Buscar</label>
+                <input type="text" name="q" value="{{ query }}" placeholder="Nombre, correo, teléfono...">
+            </div>
+            
+            <div class="form-group">
+                <label>Empresa</label>
+                <select name="empresa">
+                    <option value="">Todas</option>
+                    {% for empresa in empresas %}
+                        <option value="{{ empresa.id }}" {% if empresa_id == empresa.id|stringformat:"s" %}selected{% endif %}>{{ empresa.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Etiqueta</label>
+                <select name="etiqueta">
+                    <option value="">Todas</option>
+                    {% for etiqueta in etiquetas %}
+                        <option value="{{ etiqueta.id }}" {% if etiqueta_id == etiqueta.id|stringformat:"s" %}selected{% endif %}>{{ etiqueta.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Agrupar por</label>
+                <select name="grupo">
+                    <option value="">Sin agrupar</option>
+                    <option value="empresa" {% if grupo == 'empresa' %}selected{% endif %}>Empresa</option>
+                    <option value="etiqueta" {% if grupo == 'etiqueta' %}selected{% endif %}>Etiqueta</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <button type="submit" class="btn">Filtrar</button>
+                <a href="{% url 'contactos_list' %}" class="btn btn-secondary">Limpiar</a>
+            </div>
+        </form>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Empresa</th>
+                <th>Etiquetas</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for contacto in page_obj %}
+                <tr>
+                    <td><strong>{{ contacto.nombre }}</strong></td>
+                    <td>{{ contacto.correo }}</td>
+                    <td>{{ contacto.telefono|default:"-" }}</td>
+                    <td>{{ contacto.empresa.nombre|default:"-" }}</td>
+                    <td>
+                        {% for etiqueta in contacto.etiquetas.all %}
+                            <span class="tag" style="background-color: {{ etiqueta.color }}20; color: {{ etiqueta.color }};">{{ etiqueta.nombre }}</span>
+                        {% empty %}
+                            -
+                        {% endfor %}
+                    </td>
+                    <td class="actions">
+                        <a href="{% url 'contacto_detail' contacto.pk %}" class="btn btn-sm">Ver</a>
+                        <a href="{% url 'contacto_edit' contacto.pk %}" class="btn btn-sm">Editar</a>
+                        <a href="{% url 'contacto_delete' contacto.pk %}" class="btn btn-sm btn-danger">Eliminar</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" style="text-align: center; padding: 2rem; color: #6b7280;">No se encontraron contactos</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if page_obj.has_other_pages %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}{% if empresa_id %}&empresa={{ empresa_id }}{% endif %}{% if etiqueta_id %}&etiqueta={{ etiqueta_id }}{% endif %}{% if grupo %}&grupo={{ grupo }}{% endif %}">&laquo; Anterior</a>
+            {% endif %}
+            
+            <span class="current">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+            
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}{% if empresa_id %}&empresa={{ empresa_id }}{% endif %}{% if etiqueta_id %}&etiqueta={{ etiqueta_id }}{% endif %}{% if grupo %}&grupo={{ grupo }}{% endif %}">Siguiente &raquo;</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+
